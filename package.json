@@ -22,7 +22,8 @@
     "cors": "^2.8.5",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
