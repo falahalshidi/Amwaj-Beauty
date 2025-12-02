@@ -52,7 +52,19 @@ function ProductsPage() {
     <div className="products-page">
       <header className="products-header">
         <div className="header-content">
-          <img src="/logo.svg" alt="Amwaj Beauty" className="logo-small" />
+          <img 
+            src="/logo.png" 
+            alt="Amwaj Beauty" 
+            className="logo-small" 
+            onError={(e) => {
+              const img = e.target as HTMLImageElement
+              if (img.src.includes('logo.png')) {
+                img.src = '/logo.jpg'
+              } else if (img.src.includes('logo.jpg')) {
+                img.src = '/logo.svg'
+              }
+            }} 
+          />
           <h1>Amwaj Beauty</h1>
           <div className="header-actions">
             {user ? (

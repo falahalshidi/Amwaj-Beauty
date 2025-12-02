@@ -1,12 +1,33 @@
 .products-page {
   min-height: 100vh;
   background-color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.products-page::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background-image: url('/logo-white.png'), url('/logo-white.jpg'), url('/logo-white.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .products-header {
   background: linear-gradient(135deg, var(--white) 0%, var(--pink-light) 100%);
   padding: 1.5rem 2rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 2;
 }
 
 .header-content {
@@ -63,6 +84,8 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 3rem 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .page-title {

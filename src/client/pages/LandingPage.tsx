@@ -8,7 +8,19 @@ function LandingPage() {
     <div className="landing-page">
       <header className="landing-header">
         <div className="logo-container">
-          <img src="/logo.svg" alt="Amwaj Beauty" className="logo" />
+          <img 
+            src="/logo.png" 
+            alt="Amwaj Beauty" 
+            className="logo" 
+            onError={(e) => {
+              const img = e.target as HTMLImageElement
+              if (img.src.includes('logo.png')) {
+                img.src = '/logo.jpg'
+              } else if (img.src.includes('logo.jpg')) {
+                img.src = '/logo.svg'
+              }
+            }} 
+          />
           <h1 className="brand-name">Amwaj Beauty</h1>
         </div>
       </header>

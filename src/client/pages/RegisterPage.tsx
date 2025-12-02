@@ -31,7 +31,19 @@ function RegisterPage() {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-header">
-          <img src="/logo.svg" alt="Amwaj Beauty" className="auth-logo" />
+          <img 
+            src="/logo.png" 
+            alt="Amwaj Beauty" 
+            className="auth-logo" 
+            onError={(e) => {
+              const img = e.target as HTMLImageElement
+              if (img.src.includes('logo.png')) {
+                img.src = '/logo.jpg'
+              } else if (img.src.includes('logo.jpg')) {
+                img.src = '/logo.svg'
+              }
+            }} 
+          />
           <h1>Amwaj Beauty</h1>
           <h2>إنشاء حساب جديد</h2>
         </div>
