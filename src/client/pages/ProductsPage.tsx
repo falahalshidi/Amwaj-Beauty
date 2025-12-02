@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 import './ProductsPage.css'
 
 interface Product {
@@ -12,8 +13,6 @@ interface Product {
   image: string
   quantity: number
 }
-
-const API_URL = 'http://localhost:5000/api'
 
 function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])

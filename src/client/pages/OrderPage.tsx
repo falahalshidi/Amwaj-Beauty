@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 import './OrderPage.css'
 
 interface Product {
@@ -12,8 +13,6 @@ interface Product {
   image: string
   quantity: number
 }
-
-const API_URL = 'http://localhost:5000/api'
 
 function OrderPage() {
   const { id } = useParams<{ id: string }>()

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config/api'
 import './AdminPanel.css'
 
 interface Product {
@@ -27,8 +28,6 @@ interface Order {
   status: 'pending' | 'preparing' | 'shipped' | 'completed'
   createdAt: string
 }
-
-const API_URL = 'http://localhost:5000/api'
 
 function AdminPanel() {
   const { user, logout } = useAuth()
