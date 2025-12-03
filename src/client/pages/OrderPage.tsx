@@ -81,27 +81,38 @@ function OrderPage() {
       }
 
       // التأكد من أن المستخدم موجود في جدول users قبل إنشاء الطلب
-      const { data: userData, error: userCheckError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', user.id)
-        .single()
+      // استخدم upsert للتأكد من وجود المستخدم (insert if not exists, update if exists)
+      const isAdmin = user.isAdmin || user.email.toLowerCase() === 'admin@amwajbeauty.com'
+      const { error: upsertError } = await (supabase
+        .from('users') as any)
+        .upsert({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          is_admin: isAdmin,
+        }, {
+          onConflict: 'id',
+          ignoreDuplicates: false
+        })
 
-      // إذا لم يكن المستخدم موجوداً، أنشئه
-      if (userCheckError || !userData) {
-        console.log('User not found in users table, creating...')
-        const { error: createUserError } = await (supabase
+      if (upsertError) {
+        console.error('Error upserting user:', upsertError)
+        // إذا فشل upsert، حاول insert فقط
+        const { error: insertError } = await (supabase
           .from('users') as any)
           .insert({
             id: user.id,
             name: user.name,
             email: user.email,
-            is_admin: user.isAdmin || user.email.toLowerCase() === 'admin@amwajbeauty.com',
+            is_admin: isAdmin,
           })
+          .select()
+          .single()
 
-        if (createUserError) {
-          console.error('Error creating user:', createUserError)
-          // حاول المتابعة على أي حال - قد يكون المستخدم موجوداً لكن RLS يمنع القراءة
+        if (insertError) {
+          // إذا فشل insert أيضاً، قد يكون المستخدم موجوداً بالفعل
+          // حاول المتابعة - قد يكون RLS يمنع القراءة لكن المستخدم موجود
+          console.warn('Could not create/update user, but continuing with order creation...', insertError)
         }
       }
 
