@@ -79,11 +79,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data) {
         const userData = data as { id: string; name: string; email: string; is_admin: boolean }
+        // إذا كان البريد الإلكتروني هو admin@amwajbeauty.com، تأكد من أنه admin
+        const isAdminEmail = userData.email.toLowerCase() === 'admin@amwajbeauty.com'
+        const isAdmin = userData.is_admin || isAdminEmail
+        
+        // إذا كان البريد admin@amwajbeauty.com لكن is_admin = false، حدثه في قاعدة البيانات
+        if (isAdminEmail && !userData.is_admin) {
+          try {
+            await (supabase
+              .from('users') as any)
+              .update({ is_admin: true })
+              .eq('id', userData.id)
+          } catch (updateError) {
+            console.error('Error updating admin status:', updateError)
+          }
+        }
+        
         setUser({
           id: userData.id,
           name: userData.name,
           email: userData.email,
-          isAdmin: userData.is_admin || false,
+          isAdmin: isAdmin,
         })
       }
     } catch (error: any) {
@@ -105,13 +121,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             authUser.user_metadata?.display_name ||
             authUser.email.split('@')[0]
 
+          // إذا كان البريد الإلكتروني هو admin@amwajbeauty.com، اجعله admin
+          const isAdmin = authUser.email.toLowerCase() === 'admin@amwajbeauty.com'
+
           const { data: newUser, error: insertError } = await (supabase
             .from('users') as any)
             .insert({
               id: authUser.id,
               name: userName,
               email: authUser.email,
-              is_admin: false,
+              is_admin: isAdmin,
             })
             .select()
             .single()
@@ -127,11 +146,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.error('Error creating user record:', insertError)
             // Fallback: use auth user metadata directly
             if (authUser.user_metadata?.name || authUser.email) {
+              const isAdmin = authUser.email.toLowerCase() === 'admin@amwajbeauty.com'
               setUser({
                 id: authUser.id,
                 name: userName,
                 email: authUser.email,
-                isAdmin: false,
+                isAdmin: isAdmin,
               })
             }
           }
@@ -139,11 +159,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Error in user creation:', insertErr)
           // Final fallback: use auth user metadata
           if (authUser.user_metadata?.name || authUser.email) {
+            const isAdmin = authUser.email.toLowerCase() === 'admin@amwajbeauty.com'
             setUser({
               id: authUser.id,
               name: authUser.user_metadata?.name || authUser.user_metadata?.full_name || authUser.email.split('@')[0],
               email: authUser.email,
-              isAdmin: false,
+              isAdmin: isAdmin,
             })
           }
         }
@@ -223,13 +244,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // If user doesn't exist (trigger didn't fire), create it manually
         if (fetchError || !userData) {
           console.log('Trigger did not create user, creating manually...')
+          // إذا كان البريد الإلكتروني هو admin@amwajbeauty.com، اجعله admin
+          const userEmail = data.user.email || email
+          const isAdmin = userEmail.toLowerCase() === 'admin@amwajbeauty.com'
           const { data: newUser, error: insertError } = await (supabase
             .from('users') as any)
             .insert({
               id: data.user.id,
               name: name, // Use the name from registration form
-              email: data.user.email || email,
-              is_admin: false,
+              email: userEmail,
+              is_admin: isAdmin,
             })
             .select()
             .single()
@@ -238,11 +262,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.error('Error creating user record:', insertError)
             // If RLS blocks, try to set user data from auth user metadata
             if (data.user.user_metadata?.name) {
+              const userEmail = data.user.email || email
+              const isAdmin = userEmail.toLowerCase() === 'admin@amwajbeauty.com'
               setUser({
                 id: data.user.id,
                 name: data.user.user_metadata.name,
-                email: data.user.email || email,
-                isAdmin: false,
+                email: userEmail,
+                isAdmin: isAdmin,
               })
               setLoading(false)
               return

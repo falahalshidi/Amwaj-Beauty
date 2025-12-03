@@ -87,7 +87,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
-  return user?.isAdmin ? <>{children}</> : <Navigate to="/" />
+  // التحقق من isAdmin أو من البريد الإلكتروني admin@amwajbeauty.com
+  const isAdmin = user?.isAdmin || user?.email?.toLowerCase() === 'admin@amwajbeauty.com'
+  return isAdmin ? <>{children}</> : <Navigate to="/" />
 }
 
 function App() {

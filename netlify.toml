@@ -10,3 +10,10 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# ⚠️ مهم: أضف متغيرات البيئة التالية في Netlify Dashboard:
+# - VITE_SUPABASE_URL
+# - VITE_SUPABASE_ANON_KEY
+# 
+# اذهب إلى: Site settings → Environment variables
+# راجع ملف NETLIFY_ENV_SETUP.md للتعليمات الكاملة
+
