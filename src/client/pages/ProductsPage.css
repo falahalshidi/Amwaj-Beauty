@@ -65,17 +65,21 @@
 }
 
 .login-btn,
-.admin-btn {
+.admin-btn,
+.orders-btn {
   background-color: var(--pink-medium);
   color: var(--white);
   padding: 0.7rem 1.5rem;
   border-radius: 25px;
   font-size: 1rem;
+  border: none;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .login-btn:hover,
-.admin-btn:hover {
+.admin-btn:hover,
+.orders-btn:hover {
   background-color: var(--pink-dark);
   transform: translateY(-2px);
 }

@@ -283,10 +283,51 @@
   background-color: #fcc;
 }
 
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .orders-admin h2 {
   color: var(--pink-dark);
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin: 0;
+}
+
+.order-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.order-filters button {
+  padding: 0.7rem 1.5rem;
+  border: 2px solid var(--pink-light);
+  border-radius: 25px;
+  background-color: var(--white);
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.order-filters button:hover {
+  background-color: var(--pink-light);
+  border-color: var(--pink-medium);
+}
+
+.order-filters .filter-active {
+  background-color: var(--pink-medium);
+  color: var(--white);
+  border-color: var(--pink-medium);
+}
+
+.order-filters .filter-active:hover {
+  background-color: var(--pink-dark);
 }
 
 .orders-list {

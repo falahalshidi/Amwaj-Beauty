@@ -74,6 +74,9 @@ function ProductsPage() {
             {user ? (
               <div className="user-info">
                 <span>مرحباً، {user.name}</span>
+                <button onClick={() => navigate('/my-orders')} className="orders-btn">
+                  طلباتي
+                </button>
                 {user.isAdmin && (
                   <button onClick={() => navigate('/admin')} className="admin-btn">
                     لوحة التحكم

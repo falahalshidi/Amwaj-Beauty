@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import OrderPage from './pages/OrderPage'
 import AdminPanel from './pages/AdminPanel'
+import MyOrdersPage from './pages/MyOrdersPage'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 interface ErrorBoundaryState {
@@ -116,6 +117,14 @@ function App() {
                 <AdminRoute>
                   <AdminPanel />
                 </AdminRoute>
+              }
+            />
+            <Route
+              path="/my-orders"
+              element={
+                <ProtectedRoute>
+                  <MyOrdersPage />
+                </ProtectedRoute>
               }
             />
           </Routes>

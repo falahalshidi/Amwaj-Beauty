@@ -32,6 +32,8 @@ function AdminPanel() {
   const { user, logout } = useAuth()
   const [products, setProducts] = useState<Product[]>([])
   const [orders, setOrders] = useState<Order[]>([])
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
+  const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'preparing' | 'shipped' | 'completed'>('all')
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products')
   const [showProductForm, setShowProductForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -59,13 +61,30 @@ function AdminPanel() {
       if (ordersRes.error) throw ordersRes.error
 
       setProducts((productsRes.data || []) as Product[])
-      setOrders((ordersRes.data || []) as Order[])
+      const ordersData = (ordersRes.data || []) as Order[]
+      setOrders(ordersData)
+      applyOrderFilter(ordersData, orderFilter)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
   }
+
+  const applyOrderFilter = (ordersList: Order[], filter: typeof orderFilter) => {
+    if (filter === 'all') {
+      setFilteredOrders(ordersList)
+    } else {
+      setFilteredOrders(ordersList.filter(order => order.status === filter))
+    }
+  }
+
+  useEffect(() => {
+    if (orders.length > 0) {
+      applyOrderFilter(orders, orderFilter)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderFilter])
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -139,7 +158,16 @@ function AdminPanel() {
         .eq('id', orderId)
 
       if (error) throw error
-      fetchData()
+      // تحديث الحالة محلياً
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId ? { ...order, status } : order
+        )
+      )
+      applyOrderFilter(
+        orders.map(order => order.id === orderId ? { ...order, status } : order),
+        orderFilter
+      )
     } catch (error: any) {
       console.error('Error updating order status:', error)
       alert(error.message || 'حدث خطأ أثناء تحديث حالة الطلب')
@@ -315,9 +343,43 @@ function AdminPanel() {
 
         {activeTab === 'orders' && (
           <div className="orders-admin">
-            <h2>الطلبات</h2>
+            <div className="orders-header">
+              <h2>الطلبات</h2>
+              <div className="order-filters">
+                <button
+                  className={orderFilter === 'all' ? 'filter-active' : ''}
+                  onClick={() => setOrderFilter('all')}
+                >
+                  الكل
+                </button>
+                <button
+                  className={orderFilter === 'pending' ? 'filter-active' : ''}
+                  onClick={() => setOrderFilter('pending')}
+                >
+                  قيد الانتظار
+                </button>
+                <button
+                  className={orderFilter === 'preparing' ? 'filter-active' : ''}
+                  onClick={() => setOrderFilter('preparing')}
+                >
+                  جاري الإعداد
+                </button>
+                <button
+                  className={orderFilter === 'shipped' ? 'filter-active' : ''}
+                  onClick={() => setOrderFilter('shipped')}
+                >
+                  تم الشحن
+                </button>
+                <button
+                  className={orderFilter === 'completed' ? 'filter-active' : ''}
+                  onClick={() => setOrderFilter('completed')}
+                >
+                  مكتمل
+                </button>
+              </div>
+            </div>
             <div className="orders-list">
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <div key={order.id} className="order-admin-card">
                   <div className="order-header-info">
                     <div>
@@ -355,9 +417,9 @@ function AdminPanel() {
                   </div>
                 </div>
               ))}
-              {orders.length === 0 && (
+              {filteredOrders.length === 0 && (
                 <div className="no-orders">
-                  <p>لا توجد طلبات حالياً</p>
+                  <p>لا توجد طلبات {orderFilter !== 'all' ? `بالحالة "${orderFilter}"` : ''} حالياً</p>
                 </div>
               )}
             </div>
