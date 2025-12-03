@@ -117,10 +117,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (!insertError && newUser) {
             setUser({
-              id: newUser.id,
-              name: newUser.name,
-              email: newUser.email,
-              isAdmin: newUser.is_admin || false,
+              id: (newUser as any).id,
+              name: (newUser as any).name,
+              email: (newUser as any).email,
+              isAdmin: (newUser as any).is_admin || false,
             })
           } else if (insertError) {
             console.error('Error creating user record:', insertError)
@@ -248,10 +248,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           } else if (newUser) {
             setUser({
-              id: newUser.id,
-              name: newUser.name,
-              email: newUser.email,
-              isAdmin: newUser.is_admin || false,
+              id: (newUser as any).id,
+              name: (newUser as any).name,
+              email: (newUser as any).email,
+              isAdmin: (newUser as any).is_admin || false,
             })
             setLoading(false)
             return
@@ -259,10 +259,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           // User exists, use it
           setUser({
-            id: userData.id,
-            name: userData.name || name, // Use name from DB or fallback to form name
-            email: userData.email,
-            isAdmin: userData.is_admin || false,
+            id: (userData as any).id,
+            name: (userData as any).name || name, // Use name from DB or fallback to form name
+            email: (userData as any).email,
+            isAdmin: (userData as any).is_admin || false,
           })
           setLoading(false)
           return
