@@ -298,8 +298,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Final fallback: use auth user data
         await fetchUserData(data.user)
       } else {
-        // No user returned - might need email confirmation
-        throw new Error('يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب')
+        // No user returned - this shouldn't happen if email confirmation is disabled
+        console.warn('No user returned from signUp, but continuing...')
+        // Don't throw error, just log it
       }
     } catch (error: any) {
       console.error('Register catch error:', error)
