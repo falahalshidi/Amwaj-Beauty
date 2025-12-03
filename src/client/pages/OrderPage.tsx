@@ -39,15 +39,19 @@ function OrderPage() {
 
   const fetchProduct = async () => {
     try {
+      if (!id) {
+        navigate('/products')
+        return
+      }
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('id', id)
-        .single()
+        .single() as any
 
       if (error) throw error
       if (data) {
-        setProduct(data)
+        setProduct(data as Product)
         setShippingInfo(prev => ({ ...prev, name: user?.name || '' }))
       }
     } catch (error) {
@@ -86,11 +90,12 @@ function OrderPage() {
           total_price: totalPrice,
           shipping_info: shippingInfo,
           status: 'pending',
-        })
+        } as any)
 
       if (orderError) throw orderError
 
       // Update product quantity
+      // @ts-expect-error - Supabase types not fully configured
       const { error: updateError } = await supabase
         .from('products')
         .update({ quantity: product.quantity - quantity })

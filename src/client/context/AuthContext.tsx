@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('users')
         .select('id, name, email, is_admin')
         .eq('id', authUser.id)
-        .single()
+        .single() as any
 
       if (error) {
         // If error is "relation does not exist" or similar, it means table doesn't exist
@@ -111,9 +111,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: userName,
               email: authUser.email,
               is_admin: false,
-            })
+            } as any)
             .select()
-            .single()
+            .single() as any
 
           if (!insertError && newUser) {
             setUser({
@@ -217,7 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .from('users')
           .select('id, name, email, is_admin')
           .eq('id', data.user.id)
-          .single()
+          .single() as any
 
         // If user doesn't exist (trigger didn't fire), create it manually
         if (fetchError || !userData) {
@@ -229,9 +229,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: name, // Use the name from registration form
               email: data.user.email || email,
               is_admin: false,
-            })
+            } as any)
             .select()
-            .single()
+            .single() as any
 
           if (insertError) {
             console.error('Error creating user record:', insertError)

@@ -14,18 +14,18 @@ interface Product {
 
 interface Order {
   id: string
-  product_id: string
-  product_name: string
+  productId: string
+  productName: string
   quantity: number
-  total_price: number
-  shipping_info: {
+  totalPrice: number
+  shippingInfo: {
     name: string
     phone: string
     address: string
     city: string
   }
   status: 'pending' | 'preparing' | 'shipped' | 'completed'
-  created_at: string
+  createdAt: string
 }
 
 function AdminPanel() {
@@ -51,21 +51,21 @@ function AdminPanel() {
   const fetchData = async () => {
     try {
       const [productsRes, ordersRes] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('orders').select('*').order('created_at', { ascending: false })
+        supabase.from('products').select('*').order('created_at', { ascending: false }) as any,
+        supabase.from('orders').select('*').order('created_at', { ascending: false }) as any
       ])
 
       if (productsRes.error) throw productsRes.error
       if (ordersRes.error) throw ordersRes.error
 
-      setProducts(productsRes.data || [])
+      setProducts((productsRes.data || []) as Product[])
       // Transform orders to match the interface
-      const transformedOrders = (ordersRes.data || []).map(order => ({
+      const transformedOrders = ((ordersRes.data || []) as any[]).map((order: any) => ({
         id: order.id,
         productId: order.product_id,
         productName: order.product_name,
         quantity: order.quantity,
-        totalPrice: parseFloat(order.total_price),
+        totalPrice: parseFloat(String(order.total_price || 0)),
         shippingInfo: order.shipping_info,
         status: order.status,
         createdAt: order.created_at,
@@ -90,6 +90,7 @@ function AdminPanel() {
       }
 
       if (editingProduct) {
+        // @ts-expect-error - Supabase types not fully configured
         const { error } = await supabase
           .from('products')
           .update(productData)
@@ -97,6 +98,7 @@ function AdminPanel() {
 
         if (error) throw error
       } else {
+        // @ts-expect-error - Supabase types not fully configured
         const { error } = await supabase
           .from('products')
           .insert(productData)
@@ -144,6 +146,7 @@ function AdminPanel() {
 
   const handleUpdateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
+      // @ts-expect-error - Supabase types not fully configured
       const { error } = await supabase
         .from('orders')
         .update({ status })
