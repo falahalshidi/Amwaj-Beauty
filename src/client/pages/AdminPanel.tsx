@@ -79,15 +79,15 @@ function AdminPanel() {
       }
 
       if (editingProduct) {
-        const { error } = await supabase
-          .from('products')
+        const { error } = await (supabase
+          .from('products') as any)
           .update(productData)
           .eq('id', editingProduct.id)
 
         if (error) throw error
       } else {
-        const { error } = await supabase
-          .from('products')
+        const { error } = await (supabase
+          .from('products') as any)
           .insert(productData)
 
         if (error) throw error
@@ -133,8 +133,8 @@ function AdminPanel() {
 
   const handleUpdateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
-      const { error } = await supabase
-        .from('orders')
+      const { error } = await (supabase
+        .from('orders') as any)
         .update({ status })
         .eq('id', orderId)
 

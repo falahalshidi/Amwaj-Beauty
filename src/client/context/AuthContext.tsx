@@ -78,11 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
+        const userData = data as { id: string; name: string; email: string; is_admin: boolean }
         setUser({
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          isAdmin: data.is_admin || false,
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          isAdmin: userData.is_admin || false,
         })
       }
     } catch (error: any) {
@@ -104,8 +105,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             authUser.user_metadata?.display_name ||
             authUser.email.split('@')[0]
 
-          const { data: newUser, error: insertError } = await supabase
-            .from('users')
+          const { data: newUser, error: insertError } = await (supabase
+            .from('users') as any)
             .insert({
               id: authUser.id,
               name: userName,
@@ -222,8 +223,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // If user doesn't exist (trigger didn't fire), create it manually
         if (fetchError || !userData) {
           console.log('Trigger did not create user, creating manually...')
-          const { data: newUser, error: insertError } = await supabase
-            .from('users')
+          const { data: newUser, error: insertError } = await (supabase
+            .from('users') as any)
             .insert({
               id: data.user.id,
               name: name, // Use the name from registration form

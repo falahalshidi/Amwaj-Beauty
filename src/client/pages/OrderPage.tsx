@@ -80,8 +80,8 @@ function OrderPage() {
         return
       }
 
-      const { error: orderError } = await supabase
-        .from('orders')
+      const { error: orderError } = await (supabase
+        .from('orders') as any)
         .insert({
           user_id: user.id,
           product_id: product.id,
@@ -95,8 +95,8 @@ function OrderPage() {
       if (orderError) throw orderError
 
       // Update product quantity
-      const { error: updateError } = await supabase
-        .from('products')
+      const { error: updateError } = await (supabase
+        .from('products') as any)
         .update({ quantity: product.quantity - quantity })
         .eq('id', product.id)
 
