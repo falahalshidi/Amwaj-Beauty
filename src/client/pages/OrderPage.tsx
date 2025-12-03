@@ -80,6 +80,31 @@ function OrderPage() {
         return
       }
 
+      // التأكد من أن المستخدم موجود في جدول users قبل إنشاء الطلب
+      const { data: userData, error: userCheckError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      // إذا لم يكن المستخدم موجوداً، أنشئه
+      if (userCheckError || !userData) {
+        console.log('User not found in users table, creating...')
+        const { error: createUserError } = await (supabase
+          .from('users') as any)
+          .insert({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            is_admin: user.isAdmin || user.email.toLowerCase() === 'admin@amwajbeauty.com',
+          })
+
+        if (createUserError) {
+          console.error('Error creating user:', createUserError)
+          // حاول المتابعة على أي حال - قد يكون المستخدم موجوداً لكن RLS يمنع القراءة
+        }
+      }
+
       const { error: orderError } = await (supabase
         .from('orders') as any)
         .insert({
