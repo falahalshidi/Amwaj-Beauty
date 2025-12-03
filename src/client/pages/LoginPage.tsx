@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './AuthPage.css'
@@ -8,8 +8,18 @@ function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [envWarning, setEnvWarning] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    // Check if Supabase env vars are missing
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+    if (!supabaseUrl || !supabaseKey || supabaseUrl === '' || supabaseKey === '') {
+      setEnvWarning(true)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,7 +30,7 @@ function LoginPage() {
       await login(email, password)
       navigate('/products')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'حدث خطأ أثناء تسجيل الدخول')
+      setError(err.message || 'حدث خطأ أثناء تسجيل الدخول')
     } finally {
       setLoading(false)
     }
@@ -48,6 +58,25 @@ function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
+          {envWarning && (
+            <div style={{
+              background: '#fff3cd',
+              border: '1px solid #ffc107',
+              padding: '1rem',
+              borderRadius: '4px',
+              marginBottom: '1rem',
+              textAlign: 'right',
+              direction: 'rtl'
+            }}>
+              <strong>⚠️ تحذير:</strong> متغيرات Supabase غير موجودة!
+              <br />
+              يرجى إنشاء ملف <code>.env</code> وإضافة:
+              <br />
+              <code>VITE_SUPABASE_URL=your_url</code>
+              <br />
+              <code>VITE_SUPABASE_ANON_KEY=your_key</code>
+            </div>
+          )}
           {error && <div className="error-message">{error}</div>}
           
           <div className="form-group">

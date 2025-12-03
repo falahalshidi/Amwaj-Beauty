@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
-import { API_URL } from '../config/api'
+import { supabase } from '../supabase'
 import './OrderPage.css'
 
 interface Product {
@@ -40,9 +39,17 @@ function OrderPage() {
 
   const fetchProduct = async () => {
     try {
-      const response = await axios.get(`${API_URL}/products/${id}`)
-      setProduct(response.data)
-      setShippingInfo(prev => ({ ...prev, name: user?.name || '' }))
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) throw error
+      if (data) {
+        setProduct(data)
+        setShippingInfo(prev => ({ ...prev, name: user?.name || '' }))
+      }
     } catch (error) {
       console.error('Error fetching product:', error)
       navigate('/products')
@@ -64,15 +71,39 @@ function OrderPage() {
     setError('')
 
     try {
-      await axios.post(`${API_URL}/orders`, {
-        productId: product.id,
-        quantity,
-        shippingInfo
-      })
+      if (!user) {
+        setError('يجب تسجيل الدخول أولاً')
+        return
+      }
+
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          product_id: product.id,
+          product_name: product.name,
+          quantity,
+          total_price: totalPrice,
+          shipping_info: shippingInfo,
+          status: 'pending',
+        })
+
+      if (orderError) throw orderError
+
+      // Update product quantity
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ quantity: product.quantity - quantity })
+        .eq('id', product.id)
+
+      if (updateError) {
+        console.error('Error updating product quantity:', updateError)
+      }
+
       alert('تم إرسال الطلب بنجاح!')
       navigate('/products')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'حدث خطأ أثناء إرسال الطلب')
+      setError(err.message || 'حدث خطأ أثناء إرسال الطلب')
     } finally {
       setSubmitting(false)
     }

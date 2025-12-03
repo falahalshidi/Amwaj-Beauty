@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
-import { API_URL } from '../config/api'
+import { supabase } from '../supabase'
 import './ProductsPage.css'
 
 interface Product {
@@ -26,8 +25,13 @@ function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/products`)
-      setProducts(response.data)
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setProducts(data || [])
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
-import { API_URL } from '../config/api'
+import { supabase } from '../supabase'
 import './AdminPanel.css'
 
 interface Product {
@@ -15,18 +14,18 @@ interface Product {
 
 interface Order {
   id: string
-  productId: string
-  productName: string
+  product_id: string
+  product_name: string
   quantity: number
-  totalPrice: number
-  shippingInfo: {
+  total_price: number
+  shipping_info: {
     name: string
     phone: string
     address: string
     city: string
   }
   status: 'pending' | 'preparing' | 'shipped' | 'completed'
-  createdAt: string
+  created_at: string
 }
 
 function AdminPanel() {
@@ -52,11 +51,26 @@ function AdminPanel() {
   const fetchData = async () => {
     try {
       const [productsRes, ordersRes] = await Promise.all([
-        axios.get(`${API_URL}/products`),
-        axios.get(`${API_URL}/orders`)
+        supabase.from('products').select('*').order('created_at', { ascending: false }),
+        supabase.from('orders').select('*').order('created_at', { ascending: false })
       ])
-      setProducts(productsRes.data)
-      setOrders(ordersRes.data)
+
+      if (productsRes.error) throw productsRes.error
+      if (ordersRes.error) throw ordersRes.error
+
+      setProducts(productsRes.data || [])
+      // Transform orders to match the interface
+      const transformedOrders = (ordersRes.data || []).map(order => ({
+        id: order.id,
+        productId: order.product_id,
+        productName: order.product_name,
+        quantity: order.quantity,
+        totalPrice: parseFloat(order.total_price),
+        shippingInfo: order.shipping_info,
+        status: order.status,
+        createdAt: order.created_at,
+      }))
+      setOrders(transformedOrders)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -67,26 +81,36 @@ function AdminPanel() {
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      if (editingProduct) {
-        await axios.put(`${API_URL}/products/${editingProduct.id}`, {
-          ...productForm,
-          price: parseFloat(productForm.price),
-          quantity: parseInt(productForm.quantity)
-        })
-      } else {
-        await axios.post(`${API_URL}/products`, {
-          ...productForm,
-          price: parseFloat(productForm.price),
-          quantity: parseInt(productForm.quantity)
-        })
+      const productData = {
+        name: productForm.name,
+        description: productForm.description,
+        price: parseFloat(productForm.price),
+        image: productForm.image || null,
+        quantity: parseInt(productForm.quantity),
       }
+
+      if (editingProduct) {
+        const { error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editingProduct.id)
+
+        if (error) throw error
+      } else {
+        const { error } = await supabase
+          .from('products')
+          .insert(productData)
+
+        if (error) throw error
+      }
+
       setShowProductForm(false)
       setEditingProduct(null)
       setProductForm({ name: '', description: '', price: '', image: '', quantity: '' })
       fetchData()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving product:', error)
-      alert('حدث خطأ أثناء حفظ المنتج')
+      alert(error.message || 'حدث خطأ أثناء حفظ المنتج')
     }
   }
 
@@ -105,21 +129,31 @@ function AdminPanel() {
   const handleDeleteProduct = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
     try {
-      await axios.delete(`${API_URL}/products/${id}`)
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
       fetchData()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting product:', error)
-      alert('حدث خطأ أثناء حذف المنتج')
+      alert(error.message || 'حدث خطأ أثناء حذف المنتج')
     }
   }
 
   const handleUpdateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
-      await axios.put(`${API_URL}/orders/${orderId}/status`, { status })
+      const { error } = await supabase
+        .from('orders')
+        .update({ status })
+        .eq('id', orderId)
+
+      if (error) throw error
       fetchData()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating order status:', error)
-      alert('حدث خطأ أثناء تحديث حالة الطلب')
+      alert(error.message || 'حدث خطأ أثناء تحديث حالة الطلب')
     }
   }
 
@@ -300,7 +334,11 @@ function AdminPanel() {
                     <div>
                       <h3>طلب #{order.id.slice(0, 8)}</h3>
                       <p className="order-date">
-                        {new Date(order.createdAt).toLocaleDateString('ar-OM')}
+                        {new Date(order.createdAt).toLocaleDateString('ar-OM', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
                       </p>
                     </div>
                     <select
@@ -321,10 +359,10 @@ function AdminPanel() {
                   </div>
                   <div className="order-shipping">
                     <h4>معلومات الشحن:</h4>
-                    <p><strong>الاسم:</strong> {order.shippingInfo.name}</p>
-                    <p><strong>الهاتف:</strong> {order.shippingInfo.phone}</p>
-                    <p><strong>العنوان:</strong> {order.shippingInfo.address}</p>
-                    <p><strong>المدينة:</strong> {order.shippingInfo.city}</p>
+                    <p><strong>الاسم:</strong> {order.shippingInfo?.name || 'غير متوفر'}</p>
+                    <p><strong>الهاتف:</strong> {order.shippingInfo?.phone || 'غير متوفر'}</p>
+                    <p><strong>العنوان:</strong> {order.shippingInfo?.address || 'غير متوفر'}</p>
+                    <p><strong>المدينة:</strong> {order.shippingInfo?.city || 'غير متوفر'}</p>
                   </div>
                 </div>
               ))}

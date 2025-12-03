@@ -21,7 +21,7 @@ function RegisterPage() {
       await register(name, email, password)
       navigate('/products')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'حدث خطأ أثناء إنشاء الحساب')
+      setError(err.message || 'حدث خطأ أثناء إنشاء الحساب')
     } finally {
       setLoading(false)
     }
