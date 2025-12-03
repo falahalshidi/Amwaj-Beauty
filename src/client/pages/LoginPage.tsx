@@ -28,7 +28,12 @@ function LoginPage() {
 
     try {
       await login(email, password)
-      navigate('/products')
+      // إذا كان البريد الإلكتروني هو admin@amwajbeauty.com، توجه إلى صفحة الأدمن
+      if (email.toLowerCase() === 'admin@amwajbeauty.com') {
+        navigate('/admin')
+      } else {
+        navigate('/products')
+      }
     } catch (err: any) {
       setError(err.message || 'حدث خطأ أثناء تسجيل الدخول')
     } finally {
