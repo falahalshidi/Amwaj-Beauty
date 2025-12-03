@@ -47,7 +47,7 @@ function OrderPage() {
         .from('products')
         .select('*')
         .eq('id', id)
-        .single() as any
+        .single()
 
       if (error) throw error
       if (data) {
@@ -90,12 +90,11 @@ function OrderPage() {
           total_price: totalPrice,
           shipping_info: shippingInfo,
           status: 'pending',
-        } as any)
+        })
 
       if (orderError) throw orderError
 
       // Update product quantity
-      // @ts-expect-error - Supabase types not fully configured
       const { error: updateError } = await supabase
         .from('products')
         .update({ quantity: product.quantity - quantity })
@@ -139,8 +138,8 @@ function OrderPage() {
             <h2>ملخص المنتج</h2>
             <div className="product-card-summary">
               {product.image ? (
-                <img 
-                  src={product.image} 
+                <img
+                  src={product.image}
                   alt={product.name}
                   className="product-image-summary"
                   onError={(e) => {

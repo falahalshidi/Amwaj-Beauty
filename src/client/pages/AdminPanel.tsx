@@ -14,18 +14,18 @@ interface Product {
 
 interface Order {
   id: string
-  productId: string
-  productName: string
+  product_id: string
+  product_name: string
   quantity: number
-  totalPrice: number
-  shippingInfo: {
+  total_price: number
+  shipping_info: {
     name: string
     phone: string
     address: string
     city: string
   }
   status: 'pending' | 'preparing' | 'shipped' | 'completed'
-  createdAt: string
+  created_at: string
 }
 
 function AdminPanel() {
@@ -51,26 +51,15 @@ function AdminPanel() {
   const fetchData = async () => {
     try {
       const [productsRes, ordersRes] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }) as any,
-        supabase.from('orders').select('*').order('created_at', { ascending: false }) as any
+        supabase.from('products').select('*').order('created_at', { ascending: false }),
+        supabase.from('orders').select('*').order('created_at', { ascending: false })
       ])
 
       if (productsRes.error) throw productsRes.error
       if (ordersRes.error) throw ordersRes.error
 
       setProducts((productsRes.data || []) as Product[])
-      // Transform orders to match the interface
-      const transformedOrders = ((ordersRes.data || []) as any[]).map((order: any) => ({
-        id: order.id,
-        productId: order.product_id,
-        productName: order.product_name,
-        quantity: order.quantity,
-        totalPrice: parseFloat(String(order.total_price || 0)),
-        shippingInfo: order.shipping_info,
-        status: order.status,
-        createdAt: order.created_at,
-      }))
-      setOrders(transformedOrders)
+      setOrders((ordersRes.data || []) as Order[])
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -90,7 +79,6 @@ function AdminPanel() {
       }
 
       if (editingProduct) {
-        // @ts-expect-error - Supabase types not fully configured
         const { error } = await supabase
           .from('products')
           .update(productData)
@@ -98,7 +86,6 @@ function AdminPanel() {
 
         if (error) throw error
       } else {
-        // @ts-expect-error - Supabase types not fully configured
         const { error } = await supabase
           .from('products')
           .insert(productData)
@@ -146,7 +133,6 @@ function AdminPanel() {
 
   const handleUpdateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
-      // @ts-expect-error - Supabase types not fully configured
       const { error } = await supabase
         .from('orders')
         .update({ status })
@@ -337,7 +323,7 @@ function AdminPanel() {
                     <div>
                       <h3>طلب #{order.id.slice(0, 8)}</h3>
                       <p className="order-date">
-                        {new Date(order.createdAt).toLocaleDateString('ar-OM', {
+                        {new Date(order.created_at).toLocaleDateString('ar-OM', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
@@ -356,16 +342,16 @@ function AdminPanel() {
                     </select>
                   </div>
                   <div className="order-details">
-                    <p><strong>المنتج:</strong> {order.productName}</p>
+                    <p><strong>المنتج:</strong> {order.product_name}</p>
                     <p><strong>الكمية:</strong> {order.quantity}</p>
-                    <p><strong>المجموع:</strong> {order.totalPrice.toFixed(3)} ر.ع</p>
+                    <p><strong>المجموع:</strong> {order.total_price.toFixed(3)} ر.ع</p>
                   </div>
                   <div className="order-shipping">
                     <h4>معلومات الشحن:</h4>
-                    <p><strong>الاسم:</strong> {order.shippingInfo?.name || 'غير متوفر'}</p>
-                    <p><strong>الهاتف:</strong> {order.shippingInfo?.phone || 'غير متوفر'}</p>
-                    <p><strong>العنوان:</strong> {order.shippingInfo?.address || 'غير متوفر'}</p>
-                    <p><strong>المدينة:</strong> {order.shippingInfo?.city || 'غير متوفر'}</p>
+                    <p><strong>الاسم:</strong> {order.shipping_info?.name || 'غير متوفر'}</p>
+                    <p><strong>الهاتف:</strong> {order.shipping_info?.phone || 'غير متوفر'}</p>
+                    <p><strong>العنوان:</strong> {order.shipping_info?.address || 'غير متوفر'}</p>
+                    <p><strong>المدينة:</strong> {order.shipping_info?.city || 'غير متوفر'}</p>
                   </div>
                 </div>
               ))}

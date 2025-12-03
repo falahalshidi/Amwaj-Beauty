@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('users')
         .select('id, name, email, is_admin')
         .eq('id', authUser.id)
-        .single() as any
+        .single()
 
       if (error) {
         // If error is "relation does not exist" or similar, it means table doesn't exist
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error: any) {
       console.error('Error fetching user data:', error)
-      
+
       // If it's a network error, don't try to create user
       if (error.message?.includes('Failed to fetch') || error.message?.includes('Network')) {
         console.error('Network error - cannot create user')
@@ -99,10 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (authUser.email) {
         try {
           // Try to get name from user_metadata (multiple possible keys)
-          const userName = authUser.user_metadata?.name || 
-                          authUser.user_metadata?.full_name || 
-                          authUser.user_metadata?.display_name ||
-                          authUser.email.split('@')[0]
+          const userName = authUser.user_metadata?.name ||
+            authUser.user_metadata?.full_name ||
+            authUser.user_metadata?.display_name ||
+            authUser.email.split('@')[0]
 
           const { data: newUser, error: insertError } = await supabase
             .from('users')
@@ -111,9 +111,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: userName,
               email: authUser.email,
               is_admin: false,
-            } as any)
+            })
             .select()
-            .single() as any
+            .single()
 
           if (!insertError && newUser) {
             setUser({
@@ -211,13 +211,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.user) {
         // Wait a bit for trigger to execute
         await new Promise(resolve => setTimeout(resolve, 1000))
-        
+
         // Try to fetch user data (trigger should have created it)
         const { data: userData, error: fetchError } = await supabase
           .from('users')
           .select('id, name, email, is_admin')
           .eq('id', data.user.id)
-          .single() as any
+          .single()
 
         // If user doesn't exist (trigger didn't fire), create it manually
         if (fetchError || !userData) {
@@ -229,9 +229,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               name: name, // Use the name from registration form
               email: data.user.email || email,
               is_admin: false,
-            } as any)
+            })
             .select()
-            .single() as any
+            .single()
 
           if (insertError) {
             console.error('Error creating user record:', insertError)
