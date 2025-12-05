@@ -23,9 +23,9 @@ const createSupabaseClient = (): SupabaseClient<Database> => {
       console.error('❌ Invalid Supabase URL. Must start with http:// or https://')
     }
 
-    // Validate key format (should start with eyJ for JWT)
-    if (supabaseAnonKey && !supabaseAnonKey.startsWith('eyJ')) {
-      console.warn('⚠️ Warning: Anon key format looks incorrect. Make sure you copied the "anon/public" key, not "service_role" key.')
+    // Validate key format (should start with eyJ for JWT or sb_publishable_ for new format)
+    if (supabaseAnonKey && !supabaseAnonKey.startsWith('eyJ') && !supabaseAnonKey.startsWith('sb_publishable_')) {
+      console.warn('⚠️ Warning: Anon key format looks incorrect. Make sure you copied the "anon/public" or "publishable" key, not "service_role" key.')
     }
 
     const client = createClient<Database>(supabaseUrl, supabaseAnonKey, {

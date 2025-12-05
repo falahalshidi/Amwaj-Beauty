@@ -44,6 +44,9 @@ function AdminPanel() {
     image: '',
     quantity: ''
   })
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -86,14 +89,63 @@ function AdminPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderFilter])
 
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingImage(true)
+      
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = `products/${fileName}`
+
+      // Upload to Supabase Storage
+      const { error: uploadError, data } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        throw uploadError
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath)
+
+      return urlData.publicUrl
+    } catch (error: any) {
+      console.error('Error uploading image:', error)
+      throw error
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      let imageUrl = productForm.image
+
+      // Upload image if a new file is selected
+      if (selectedImage) {
+        const uploadedUrl = await uploadImage(selectedImage)
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl
+        } else {
+          alert('فشل رفع الصورة. يرجى المحاولة مرة أخرى.')
+          return
+        }
+      }
+
       const productData = {
         name: productForm.name,
         description: productForm.description,
         price: parseFloat(productForm.price),
-        image: productForm.image || null,
+        image: imageUrl || null,
         quantity: parseInt(productForm.quantity),
       }
 
@@ -115,6 +167,8 @@ function AdminPanel() {
       setShowProductForm(false)
       setEditingProduct(null)
       setProductForm({ name: '', description: '', price: '', image: '', quantity: '' })
+      setSelectedImage(null)
+      setImagePreview(null)
       fetchData()
     } catch (error: any) {
       console.error('Error saving product:', error)
@@ -131,7 +185,35 @@ function AdminPanel() {
       image: product.image,
       quantity: product.quantity.toString()
     })
+    setSelectedImage(null)
+    setImagePreview(product.image || null)
     setShowProductForm(true)
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('الرجاء اختيار ملف صورة')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('حجم الصورة كبير جداً. الحد الأقصى 5 ميجابايت')
+        return
+      }
+
+      setSelectedImage(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const handleDeleteProduct = async (id: string) => {
@@ -215,6 +297,8 @@ function AdminPanel() {
                 onClick={() => {
                   setEditingProduct(null)
                   setProductForm({ name: '', description: '', price: '', image: '', quantity: '' })
+                  setSelectedImage(null)
+                  setImagePreview(null)
                   setShowProductForm(true)
                 }}
               >
@@ -268,17 +352,44 @@ function AdminPanel() {
                       </div>
                     </div>
                     <div className="form-group">
-                      <label>رابط الصورة</label>
+                      <label>صورة المنتج</label>
                       <input
-                        type="url"
-                        value={productForm.image}
-                        onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
-                        placeholder="https://example.com/image.jpg"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        style={{ marginBottom: '1rem' }}
                       />
+                      {imagePreview && (
+                        <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            style={{ 
+                              maxWidth: '100%', 
+                              maxHeight: '300px', 
+                              borderRadius: '8px',
+                              border: '2px solid var(--pink-light)'
+                            }} 
+                          />
+                        </div>
+                      )}
+                      {uploadingImage && (
+                        <div style={{ color: 'var(--pink-medium)', marginTop: '0.5rem' }}>
+                          جاري رفع الصورة...
+                        </div>
+                      )}
                     </div>
                     <div className="form-actions">
-                      <button type="submit" className="save-btn">
-                        {editingProduct ? 'حفظ التعديلات' : 'إضافة المنتج'}
+                      <button 
+                        type="submit" 
+                        className="save-btn"
+                        disabled={uploadingImage}
+                      >
+                        {uploadingImage 
+                          ? 'جاري الحفظ...' 
+                          : editingProduct 
+                            ? 'حفظ التعديلات' 
+                            : 'إضافة المنتج'}
                       </button>
                       <button
                         type="button"
@@ -286,7 +397,10 @@ function AdminPanel() {
                         onClick={() => {
                           setShowProductForm(false)
                           setEditingProduct(null)
+                          setSelectedImage(null)
+                          setImagePreview(null)
                         }}
+                        disabled={uploadingImage}
                       >
                         إلغاء
                       </button>

@@ -225,7 +225,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error('Register error:', error)
-        throw new Error(error.message || 'حدث خطأ أثناء إنشاء الحساب')
+        // Translate common errors to Arabic
+        if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
+          throw new Error('فشل الاتصال بالخادم. تحقق من اتصال الإنترنت ومتغيرات Supabase')
+        } else if (error.message.includes('User already registered')) {
+          throw new Error('البريد الإلكتروني مستخدم بالفعل')
+        } else if (error.message.includes('Password')) {
+          throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل')
+        } else {
+          throw new Error(error.message || 'حدث خطأ أثناء إنشاء الحساب')
+        }
       }
 
       // User record will be created automatically by database trigger
