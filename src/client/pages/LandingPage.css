@@ -115,6 +115,15 @@
 }
 
 @media (max-width: 768px) {
+  .logo {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .brand-name {
+    font-size: 1.8rem;
+  }
+  
   .hero-title {
     font-size: 2.5rem;
   }

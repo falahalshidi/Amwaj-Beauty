@@ -132,5 +132,14 @@
   .auth-container {
     padding: 2rem;
   }
+  
+  .auth-logo {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .auth-header h1 {
+    font-size: 1.8rem;
+  }
 }
 
