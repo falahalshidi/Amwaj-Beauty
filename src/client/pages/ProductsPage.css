@@ -13,7 +13,7 @@
   transform: translate(-50%, -50%);
   width: 600px;
   height: 600px;
-  background-image: url('/logo-white.png'), url('/logo-white.jpg'), url('/logo-white.svg');
+  background-image: url('/logo-white.svg.jpg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
