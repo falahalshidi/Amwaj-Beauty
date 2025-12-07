@@ -46,7 +46,7 @@ function LoginPage() {
       <div className="auth-container">
         <div className="auth-header">
           <img 
-            src="/logo.jpg" 
+            src="/logo.png" 
             alt="Amwaj Beauty" 
             className="auth-logo" 
           />

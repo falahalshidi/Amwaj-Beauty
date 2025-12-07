@@ -215,6 +215,52 @@
   cursor: not-allowed;
 }
 
+.delivery-type-options {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.delivery-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  border: 2px solid var(--pink-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--white);
+}
+
+.delivery-option:hover {
+  border-color: var(--pink-medium);
+  background-color: var(--pink-light);
+}
+
+.delivery-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--pink-medium);
+}
+
+.delivery-option input[type="radio"]:checked + span {
+  color: var(--pink-dark);
+  font-weight: 600;
+}
+
+.delivery-option:has(input[type="radio"]:checked) {
+  border-color: var(--pink-medium);
+  background-color: var(--pink-light);
+}
+
+.delivery-option span {
+  font-size: 1rem;
+  color: var(--text-dark);
+  user-select: none;
+}
+
 .error-message {
   background-color: #fee;
   color: #c33;

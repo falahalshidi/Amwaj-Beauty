@@ -57,7 +57,7 @@ function ProductsPage() {
       <header className="products-header">
         <div className="header-content">
           <img 
-            src="/logo.jpg" 
+            src="/logo.png" 
             alt="Amwaj Beauty" 
             className="logo-small" 
           />

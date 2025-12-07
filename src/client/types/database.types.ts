@@ -72,8 +72,8 @@ export interface Database {
                     shipping_info: {
                         name: string
                         phone: string
-                        address: string
                         city: string
+                        deliveryType?: 'home' | 'office'
                     }
                     status: 'pending' | 'preparing' | 'shipped' | 'completed'
                     created_at: string
@@ -88,8 +88,8 @@ export interface Database {
                     shipping_info: {
                         name: string
                         phone: string
-                        address: string
                         city: string
+                        deliveryType?: 'home' | 'office'
                     }
                     status?: 'pending' | 'preparing' | 'shipped' | 'completed'
                     created_at?: string

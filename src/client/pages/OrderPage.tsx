@@ -22,8 +22,8 @@ function OrderPage() {
   const [shippingInfo, setShippingInfo] = useState({
     name: user?.name || '',
     phone: '',
-    address: '',
-    city: ''
+    city: '',
+    deliveryType: 'home' as 'home' | 'office'
   })
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -257,23 +257,39 @@ function OrderPage() {
             </div>
 
             <div className="form-group">
-              <label>العنوان</label>
-              <textarea
-                value={shippingInfo.address}
-                onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                required
-                rows={3}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>المدينة</label>
+              <label>الولاية</label>
               <input
                 type="text"
                 value={shippingInfo.city}
                 onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label>مكان التوصيل</label>
+              <div className="delivery-type-options">
+                <label className="delivery-option">
+                  <input
+                    type="radio"
+                    name="deliveryType"
+                    value="home"
+                    checked={shippingInfo.deliveryType === 'home'}
+                    onChange={(e) => setShippingInfo({ ...shippingInfo, deliveryType: e.target.value as 'home' | 'office' })}
+                  />
+                  <span>المنزل</span>
+                </label>
+                <label className="delivery-option">
+                  <input
+                    type="radio"
+                    name="deliveryType"
+                    value="office"
+                    checked={shippingInfo.deliveryType === 'office'}
+                    onChange={(e) => setShippingInfo({ ...shippingInfo, deliveryType: e.target.value as 'home' | 'office' })}
+                  />
+                  <span>مكتب الشحن</span>
+                </label>
+              </div>
             </div>
 
             <button type="submit" className="submit-order-btn" disabled={submitting || product.quantity === 0}>

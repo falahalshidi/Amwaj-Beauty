@@ -13,8 +13,8 @@ interface Order {
   shipping_info: {
     name: string
     phone: string
-    address: string
     city: string
+    deliveryType?: 'home' | 'office'
   }
   status: 'pending' | 'preparing' | 'shipped' | 'completed'
   created_at: string
@@ -162,8 +162,7 @@ function MyOrdersPage() {
                   <div className="shipping-details">
                     <p><strong>الاسم:</strong> {order.shipping_info?.name || 'غير متوفر'}</p>
                     <p><strong>الهاتف:</strong> {order.shipping_info?.phone || 'غير متوفر'}</p>
-                    <p><strong>العنوان:</strong> {order.shipping_info?.address || 'غير متوفر'}</p>
-                    <p><strong>المدينة:</strong> {order.shipping_info?.city || 'غير متوفر'}</p>
+                    <p><strong>الولاية:</strong> {order.shipping_info?.city || 'غير متوفر'}</p>
                   </div>
                 </div>
               </div>

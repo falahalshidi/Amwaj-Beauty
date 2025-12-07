@@ -21,8 +21,8 @@ interface Order {
   shipping_info: {
     name: string
     phone: string
-    address: string
     city: string
+    deliveryType?: 'home' | 'office'
   }
   status: 'pending' | 'preparing' | 'shipped' | 'completed'
   created_at: string
@@ -526,8 +526,16 @@ function AdminPanel() {
                     <h4>معلومات الشحن:</h4>
                     <p><strong>الاسم:</strong> {order.shipping_info?.name || 'غير متوفر'}</p>
                     <p><strong>الهاتف:</strong> {order.shipping_info?.phone || 'غير متوفر'}</p>
-                    <p><strong>العنوان:</strong> {order.shipping_info?.address || 'غير متوفر'}</p>
-                    <p><strong>المدينة:</strong> {order.shipping_info?.city || 'غير متوفر'}</p>
+                    <p><strong>الولاية:</strong> {order.shipping_info?.city || 'غير متوفر'}</p>
+                    <p><strong>مكان التوصيل:</strong> 
+                      <span style={{ 
+                        color: order.shipping_info?.deliveryType === 'office' ? '#FF6B9D' : '#4CAF50',
+                        fontWeight: 'bold',
+                        marginRight: '0.5rem'
+                      }}>
+                        {order.shipping_info?.deliveryType === 'office' ? '📦 مكتب الشحن' : '🏠 المنزل'}
+                      </span>
+                    </p>
                   </div>
                 </div>
               ))}

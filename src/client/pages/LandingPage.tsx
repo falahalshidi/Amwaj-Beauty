@@ -9,7 +9,7 @@ function LandingPage() {
       <header className="landing-header">
         <div className="logo-container">
           <img 
-            src="/logo.jpg" 
+            src="/logo.png" 
             alt="Amwaj Beauty" 
             className="logo" 
           />
